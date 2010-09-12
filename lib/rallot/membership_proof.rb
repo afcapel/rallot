@@ -1,0 +1,2 @@
+class MembershipProof
+end

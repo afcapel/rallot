@@ -1,0 +1,2 @@
+require 'rallot'
+require 'contest'
