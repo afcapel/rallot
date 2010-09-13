@@ -5,8 +5,18 @@ module Rallot
   
   def Integer(*args,&block) 
     integer = case args[0] 
-    when Fixnum
-      RallotInteger.new(:value => args[0], :modulus => 0)
+    when Integer
+      if args.size >= 2
+        RallotInteger.new(:value => args[0], :modulus => args[1])
+      else
+        RallotInteger.new(:value => args[0], :modulus => 0)
+      end
+    when String
+      if args.size >= 2
+        RallotInteger.new(:value => args[0].to_i, :modulus => args[1].to_i)
+      else
+        RallotInteger.new(:value => args[0].to_i, :modulus => 0)
+      end
     when Hash
       RallotInteger.new(args[0])
     end

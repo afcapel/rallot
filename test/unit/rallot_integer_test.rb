@@ -3,6 +3,22 @@ require 'test_helper'
 class RallotIntegerTest < Test::Unit::TestCase
   include Rallot
   
+  test "creation with integers" do
+    assert Integer(5, 7).value == 5
+    assert Integer(5, 7).modulus == 7
+    
+    assert Integer(5).value == 5
+    assert Integer(5).modulus == 0
+  end
+  
+  test "creation with strings" do
+    assert Integer("5", "7").value == 5
+    assert Integer("5", "7").modulus == 7
+    
+    assert Integer("5").value == 5
+    assert Integer("5").modulus == 0
+  end
+  
   test "equality" do
     five = Integer(:value => 5, :modulus => 7)
     other_five = Rallot::Integer(:value => 5, :modulus => 7)
