@@ -1,11 +1,15 @@
+require 'digest/sha1'
+
 module Rallot
+  
+  class InvalidElGammalCypherText < StandardError; end
   #
   # Represents a vote an optionally, the proof
   #
   class ElGammalCypherText
     attr_reader :generator    # g in Adder
     attr_reader :public_value # h in Adder
-    attr_reader :random_value # r in Adder
+    attr_reader :private_value # r in Adder
     attr_reader :prime        # p in Adder
 
     attr_accessor :membership_proof
@@ -15,8 +19,8 @@ module Rallot
       @generator = Rallot::Integer(:value => attrs[:generator], :modulus => attrs[:prime])
       @public_value = Rallot::Integer(:value => attrs[:public_value], :modulus => attrs[:prime])
       
-      if attrs[:random_value]
-         @private_value = Rallot::Integer(attrs[:random_value])
+      if attrs[:private_value]
+        @private_value = Rallot::Integer(attrs[:private_value])
       else
         @private_value = Rallot::Integer(0)
       end
@@ -26,16 +30,17 @@ module Rallot
     # Returns the short hash of this vote, ignoring the ballot proof.
     #
     def short_hash
-      # TODO
+      first_part = to_s.split(' ').first
+      Digest::SHA1.hexdigest(first_part)[0..4]
     end
     
     def *(other)
       p = self.prime
       g = self.generator * other.generator
       h = self.public_value * other.public_value
-      r = self.random_value + other.random_value
+      r = self.private_value + other.private_value
       
-      return ElGammalCypherText.new(:prime => p, :generator => g, :public_value => h, :random_value => r);
+      return ElGammalCypherText.new(:prime => p, :generator => g, :public_value => h, :private_value => r);
     end
     
     #
@@ -43,10 +48,9 @@ module Rallot
     # described in the to_s method.
     #
     def self.from_s(s)
-      match = /p(\d+)G(\d+)H(\d+)(\s(.*))?/.match(s)
+      match = /p(\d+)G(\d+)H(\d+)(\s(\d*))?$/.match(s)
       
-      # GMP should accept strings to initialize integers, but this doesn't seems to
-      # work on my computer (Mac Os X 32 bit), so we'll transform them to integers first
+      raise InvalidElGammalCypherText unless match
       
       p = match[1].to_i
       g = match[2].to_i
@@ -58,7 +62,7 @@ module Rallot
     #
     # Returns a string object representing this ElgamalCiphertext
     #
-    def self.to_s
+    def to_s
       des = "p#{self.prime}G#{self.generator}H#{self.public_value}"
       
       if (self.membership_proof)
@@ -67,7 +71,5 @@ module Rallot
       
       return des
     end
-      
-      
   end
 end

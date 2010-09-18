@@ -4,7 +4,9 @@ module Rallot
   extend self
   
   def Integer(*args,&block) 
-    integer = case args[0] 
+    integer = case args[0]
+    when RallotInteger
+      args[0]
     when Integer
       if args.size >= 2
         RallotInteger.new(:value => args[0], :modulus => args[1])
@@ -12,6 +14,8 @@ module Rallot
         RallotInteger.new(:value => args[0], :modulus => 0)
       end
     when String
+      # GMP should accept strings to initialize integers, but this doesn't seems to
+      # work on my computer (Mac Os X 32 bit), so we'll transform them to integers first
       if args.size >= 2
         RallotInteger.new(:value => args[0].to_i, :modulus => args[1].to_i)
       else
@@ -72,6 +76,10 @@ module Rallot
       end
       
       return Rallot::Integer(:value =>mult_value , :modulus => self.modulus)
+    end
+    
+    def to_s
+      value.to_s
     end
       
   end

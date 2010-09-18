@@ -1,34 +1,44 @@
 module Rallot
+  
+  # Thrown by the from_s method of a Vote
+  # to indicate that there was a parse error.
+  class InvalidVoteException < StandardError; end
+  
   class Vote
-    attr_reader :cipher_list
+    attr_reader :cypherlist
 
     def initialize(*args)
-      @cipher_list = args.flatten
+      @cypherlist = args.flatten
     end
 
     def *(other)
-      mult_cipher_list = []
+      mult_cypherlist = []
 
-      @cipher_list.each_index do |i|
-        mult_cipher_list << self.cipher_list[i] * other.cipher_list[i]
+      @cypherlist.each_index do |i|
+        mult_cypherlist << self.cypherlist[i] * other.cypherlist[i]
       end
 
-      return Vote.new(mult_cipher_list);
+      return Vote.new(mult_cypherlist);
     end
 
     def self.from_s(s)
-      cipher_list = []
+      cypherlist = []
       tokens = s.split(/\s/)
-      tokens.each do |token|
-        cipher_list << Rallot::ElGammalCypherText.from_s(token)
+      
+      begin
+        tokens.each do |token|
+          cypherlist << Rallot::ElGammalCypherText.from_s(token)
+        end
+      rescue InvalidElGammalCypherText
+        raise InvalidVoteException
       end
 
-      return Vote.new(cipher_list)
+      return Vote.new(cypherlist)
     end
 
     def to_s
       des = ""
-      cipher_list.each do |cipher|
+      cypherlist.each do |cipher|
         des += "#{cipher.to_s} "
       end
 
