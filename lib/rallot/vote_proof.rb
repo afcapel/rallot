@@ -12,7 +12,19 @@ module Rallot
     # Computes a vote proof for a public key, a list of choices
     # and a number of minimun and maximum choices
     #
-    def compute(vote, publicKey, choices, min, max)
+    def self.compute(vote, publicKey, choices, min, max)
+      # TODO
+    end
+    
+    def verify(vote, publicKey, choices, min, max)
+      # TODO
+    end
+    
+    def from_s
+      # TODO
+    end
+    
+    def to_s
       # TODO
     end
   end

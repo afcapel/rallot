@@ -8,7 +8,7 @@ module Rallot
     when RallotInteger
       args[0]
     when Integer
-      if args.size >= 2
+      if args.size >= 2 && Integer === args[1]
         RallotInteger.new(:value => args[0], :modulus => args[1])
       else
         RallotInteger.new(:value => args[0], :modulus => 0)
