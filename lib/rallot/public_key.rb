@@ -61,7 +61,9 @@ module Rallot
     end
     
     def to_s
-      # TODO
+      h =  @public_value ?  @public_value : 0
+      
+      return "p#{@prime}g#{@generator}h#{h}f#{@message_base}"
     end
     
   end
