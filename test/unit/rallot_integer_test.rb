@@ -43,14 +43,14 @@ class RallotIntegerTest < Test::Unit::TestCase
   end
   
   test "addition" do
-    five = Integer(:value => 5, :modulus => 7)
-    sum = five + 10
+    five_modulus_seven = Integer(:value => 5, :modulus => 7)
+    sum = five_modulus_seven + 10
     assert sum.value == 1
     assert sum.modulus == 7
      
-    five_plus_eight = five + 8
+    five_plus_eight = five_modulus_seven + 8
     assert five_plus_eight.value == 6
-    assert five + 8 == 6
+    assert five_modulus_seven + 8 == 6
   end
   
   test "multiplication" do
@@ -62,6 +62,24 @@ class RallotIntegerTest < Test::Unit::TestCase
     assert five * Integer(:value => 4, :modulus => 3) == 5
   end
   
+  test "power" do
+    seven = Integer(7)
+    
+    assert seven.pow(2) == 49
+    assert RallotInteger === seven.pow(2), "The power of a RallotInteger must be another RallotInteger"
+  end
   
+  test "random" do
+    random = RallotInteger.random(128)
+
+    assert RallotInteger === random
+    assert random > 0
+    assert random < (2**128) -1
+  end
   
+  # test "coercion" do
+  #     five_modulus_seven = Integer(:value => 5, :modulus => 7)
+  #     assert (2 + five_modulus_seven) === RallotInteger
+  #   end
+    
 end

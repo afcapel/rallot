@@ -10,7 +10,7 @@ desc "Run unit tests"
 Rake::TestTask.new do |test|
    test.ruby_opts  << "-w"  # .should == true triggers a lot of warnings
    test.libs       << "test"
-   test.test_files =  Dir[ "test/unit/*_test.rb" ]
+   test.test_files =  Dir[ "test/unit/*_test.rb", "test/functional/*_test.rb" ]
    test.verbose    =  false
 end
 

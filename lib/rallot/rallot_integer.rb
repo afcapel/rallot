@@ -1,5 +1,3 @@
-require 'gmp'
-
 module Rallot
   extend self
   
@@ -14,8 +12,6 @@ module Rallot
         RallotInteger.new(:value => args[0], :modulus => 0)
       end
     when String
-      # GMP should accept strings to initialize integers, but this doesn't seems to
-      # work on my computer (Mac Os X 32 bit), so we'll transform them to integers first
       if args.size >= 2
         RallotInteger.new(:value => args[0].to_i, :modulus => args[1].to_i)
       else
@@ -23,6 +19,10 @@ module Rallot
       end
     when Hash
       RallotInteger.new(args[0])
+    when NilClass
+      nil
+    else
+      raise ArgumentError.new "can't convert #{args[0].class} to RallotInteger"
     end
     
     return integer
@@ -30,9 +30,9 @@ module Rallot
 
   #
   # Arbitrary precission integer for modular arithmetic.
-  # Internally, GMP integers are used to represent the value and the modulus.
+  # Internally, integers are used to represent the value and the modulus.
   #
-  class RallotInteger
+  class RallotInteger < Numeric
     include Comparable
     
     # RallotIntegers are inmutable
@@ -40,9 +40,10 @@ module Rallot
     attr_reader :modulus
 
     def initialize(attrs={})
-      @value = GMP::Z.new(attrs[:value] || attrs[:v])
-      @modulus = GMP::Z.new(attrs[:modulus] || attrs[:m])
-      @value = @value.tmod(@modulus) if @modulus && @modulus > 0
+      @value = attrs[:value].to_i
+      @modulus = attrs[:modulus].to_i
+      
+      @value = @value.modulo(@modulus) if @modulus && @modulus > 0
     end
     
     def ==(other)
@@ -60,7 +61,7 @@ module Rallot
     end
     
     def <=>(other)
-      raise ArgumentError "You can only compare two Rallot integers" unless other.respond_to? :value
+      other = Rallot::Integer(other)
       return self.value <=> other.value
     end
     
@@ -78,10 +79,38 @@ module Rallot
       return Rallot::Integer(:value =>mult_value , :modulus => self.modulus)
     end
     
+    def pow(exponent)
+      
+      if modulus && modulus > 0
+        pow = value.powmod(exponent.value, modulus)
+        Rallot::Integer(pow)
+      else
+        new_value = value ** exponent
+        Rallot::Integer(new_value, modulus)
+      end
+    end
+    
+    alias ** pow
+    
+    def self.random(length)
+      
+      random = rand(2**length-1)
+      Rallot::Integer(random)
+    end
+    
     def to_s
       value.to_s
     end
-      
+    
+    def to_i
+      value.to_i
+    end
+    
+    alias to_int to_i
+    
+    def coerce(o)
+       [Rallot::Integer(o), self]
+    end 
   end
 
 end
