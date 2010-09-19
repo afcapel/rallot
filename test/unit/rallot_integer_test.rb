@@ -69,12 +69,20 @@ class RallotIntegerTest < Test::Unit::TestCase
     assert RallotInteger === seven.pow(2), "The power of a RallotInteger must be another RallotInteger"
   end
   
-  test "random" do
-    random = RallotInteger.random(128)
-
+  test "create random with max length" do
+    random = RallotInteger.random(:max_length => 128)
+    
     assert RallotInteger === random
     assert random > 0
     assert random < (2**128) -1
+  end
+  
+  test "create random with max value" do
+    random = RallotInteger.random(:max => 128)
+    
+    assert RallotInteger === random
+    assert random > 0
+    assert random < 128
   end
   
   # test "coercion" do

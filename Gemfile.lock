@@ -1,8 +1,17 @@
+GIT
+  remote: git://github.com/srawlins/gmp.git
+  revision: 77d03527b8ca5f990d9b40313805e2cceb3836b2
+  specs:
+    gmp (0.4.7)
+
 GEM
   remote: http://rubygems.org/
   specs:
+    contest (0.1.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  contest
+  gmp!

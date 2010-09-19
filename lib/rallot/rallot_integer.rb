@@ -1,3 +1,5 @@
+require 'gmp'
+
 module Rallot
   extend self
   
@@ -40,8 +42,8 @@ module Rallot
     attr_reader :modulus
 
     def initialize(attrs={})
-      @value = attrs[:value].to_i
-      @modulus = attrs[:modulus].to_i
+      @value = GMP::Z.new(attrs[:value].to_i)
+      @modulus = GMP::Z.new(attrs[:modulus].to_i)
       
       @value = @value.modulo(@modulus) if @modulus && @modulus > 0
     end
@@ -58,6 +60,14 @@ module Rallot
 
     def +(other)      
       return RallotInteger.new(:value => self.value + other, :modulus => self.modulus)
+    end
+    
+    def -(other)      
+      return RallotInteger.new(:value => self.value - other, :modulus => self.modulus)
+    end
+    
+    def /(other)      
+      return RallotInteger.new(:value => (self.value / other).floor, :modulus => self.modulus)
     end
     
     def <=>(other)
@@ -80,22 +90,50 @@ module Rallot
     end
     
     def pow(exponent)
+      gmp_value = GMP::Z.new(value)
+      gmp_exponent = GMP::Z.new(exponent.to_i)
       
       if modulus && modulus > 0
-        pow = value.powmod(exponent.value, modulus)
-        Rallot::Integer(pow)
-      else
-        new_value = value ** exponent
-        Rallot::Integer(new_value, modulus)
+        powered = gmp_value.powmod(gmp_exponent, modulus.to_i)
+      else        
+        powered =  gmp_value ** gmp_exponent
       end
+      Rallot::Integer(powered, modulus)
     end
     
     alias ** pow
     
-    def self.random(length)
+    def self.random(*args)
       
-      random = rand(2**length-1)
-      Rallot::Integer(random)
+      case args[0]
+      when Hash
+        options = args[0]
+        if options[:max]
+          rnd_value = GMP::RandState.new.urandomm(options[:max].to_i)
+          random = Rallot::Integer(rnd_value.to_i, options[:max].to_i)
+        elsif options[:max_length]
+          rnd_value = GMP::RandState.new.urandomb(128)
+          random = Rallot::Integer(rnd_value, 2**options[:max_length]-1)
+        else
+          raise ArgumentError.new "You must specify either a :max or a :max_length option"
+        end
+      when Integer
+         random = Rallot::Integer(GMP::RandState.new.urandomm(args[0]), args[0])
+      else
+        raise ArgumentError.new "Can't create random value from #{args[0].class}"
+      end
+      
+      return random
+    end
+    
+    def self.safe_prime(length)
+      random = GMP::RandState.new.urandomb(length)
+      prime = random.nextprime
+      return Rallot::Integer(prime.to_i)
+    end
+    
+    def probable_prime?
+      GMP::Z.new(value).probab_prime?
     end
     
     def to_s

@@ -19,7 +19,12 @@ class RallotIntegerTest < Test::Unit::TestCase
   end
   
   test "create public key from integers" do
-    publicKey1 = PublicKey(123, 135, 246,234)
+    assert PublicKey(123, 135, 246,234)
+  end
+  
+  test "make partial public key" do
+    pub_key = PublicKey.make_partial_key_with_length(128)
+    assert pub_key
   end
 end
 
