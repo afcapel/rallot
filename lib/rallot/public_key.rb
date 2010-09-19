@@ -27,7 +27,11 @@ module Rallot
     
     def initialize(attrs)
         @prime = Rallot::Integer(attrs[:prime])
-        @subprime = Rallot::Integer(attrs[:subprime]) if attrs[:subprime]
+        if attrs[:subprime]
+          @subprime = Rallot::Integer(attrs[:subprime])
+        else
+           @subprime = (@prime-1)/2
+        end
         @generator = Rallot::Integer(attrs[:generator])
         @public_value = Rallot::Integer(attrs[:public_value])
         @message_base = Rallot::Integer(attrs[:message_base])
@@ -65,7 +69,10 @@ module Rallot
     # Creates the corresponding private key of this public key.
     #
     def generate_private_key
-      # TODO
+      random = RallotInteger.random(:max => @subprime) 
+      @public_value = generator ** random
+      
+      return PrivateKey.new :prime => @prime, :generator => @generator, :random => random, :message_base => @message_base
     end
     
     #
