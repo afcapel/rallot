@@ -70,11 +70,11 @@ class RallotIntegerTest < Test::Unit::TestCase
   end
   
   test "create random with max length" do
-    random = RallotInteger.random(:max_length => 128)
+    random = RallotInteger.random(:max_length => 64)
     
     assert RallotInteger === random
     assert random > 0
-    assert random < (2**128) -1
+    assert random < (2**64) -1
   end
   
   test "create random with max value" do

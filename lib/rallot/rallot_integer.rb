@@ -112,8 +112,8 @@ module Rallot
           rnd_value = GMP::RandState.new.urandomm(options[:max].to_i)
           random = Rallot::Integer(rnd_value.to_i, options[:max].to_i)
         elsif options[:max_length]
-          rnd_value = GMP::RandState.new.urandomb(128)
-          random = Rallot::Integer(rnd_value, 2**options[:max_length]-1)
+          rnd_value = GMP::RandState.new.urandomm((2**options[:max_length]-1).to_i)
+          random = Rallot::Integer(rnd_value)
         else
           raise ArgumentError.new "You must specify either a :max or a :max_length option"
         end
